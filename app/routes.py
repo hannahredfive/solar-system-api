@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, abort, make_response
 
 planets_bp = Blueprint("planets", __name__, url_prefix="/planets")
 
@@ -34,3 +34,27 @@ def handle_planets():
             "number of moons": planet.moon_count
         })
     return jsonify(planets_response)
+
+
+# wave 2, handles existing planet & invalid planet 400 & non-existing planet 404
+@planets_bp.route("/<planet_id>", methods=["GET"])
+def handle_planet(planet_id):
+    try:
+        planet_id = int(planet_id)
+    except:
+        return {"msg":f"planet {planet_id} invalid"}, 400
+    
+    for planet in planets:
+        if planet.id == planet_id:
+            return jsonify({
+                "id": planet.id,
+                "name": planet.name,
+                "description": planet.description,
+                "number of moons": planet.moon_count
+            })
+        
+    return {"msg": f"planet {planet_id} not found"}, 404
+
+
+# refactored handle_planets by created helper func
+
