@@ -20,9 +20,23 @@ planets = [
     Planet(8, "Neptune", "Neptune—the eighth and most distant major planet orbiting our Sun—is dark, cold and whipped by supersonic winds. It was the first planet located through mathematical calculations.", 14)
 ]
 
+# helper function validates planet: (1. checks if planet id type is invalid, 2. checks if)
+# planet is non-existing, 3. checks if planet exists, return planet
+def validate_planet(planet_id):
+    try:
+        planet_id = int(planet_id)
+    except:
+        abort(make_response({"msg":f"planet {planet_id} invalid"}, 400))
+    
+    for planet in planets:
+        if planet.id == planet_id:
+            return planet
+    
+    abort(make_response({"msg": f"planet {planet_id} not found"}, 404))
 
 '''ENDPOINTS/ROUTES BELOW'''
 
+# wave 1
 @planets_bp.route("", methods=["GET"])
 def handle_planets():
     planets_response = []
@@ -36,25 +50,15 @@ def handle_planets():
     return jsonify(planets_response)
 
 
-# wave 2, handles existing planet & invalid planet 400 & non-existing planet 404
+# wave 2 refactored hand_planet func using helper func
 @planets_bp.route("/<planet_id>", methods=["GET"])
 def handle_planet(planet_id):
-    try:
-        planet_id = int(planet_id)
-    except:
-        return {"msg":f"planet {planet_id} invalid"}, 400
-    
-    for planet in planets:
-        if planet.id == planet_id:
-            return jsonify({
-                "id": planet.id,
-                "name": planet.name,
-                "description": planet.description,
-                "number of moons": planet.moon_count
-            })
-        
-    return {"msg": f"planet {planet_id} not found"}, 404
+    planet = validate_planet(planet_id)
 
-
-# refactored handle_planets by created helper func
+    return jsonify({
+        "id": planet.id,
+        "name": planet.name,
+        "description": planet.description,
+        "number of moons": planet.moon_count
+    })
 
