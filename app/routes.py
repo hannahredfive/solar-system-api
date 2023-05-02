@@ -38,8 +38,13 @@ def create_planet():
 
 @planets_bp.route("", methods=["GET"])
 def get_all_planets():
+    name_query = request.args.get("name")
+    if name_query:
+        planets = Planet.query.filter_by(name=name_query)
+    else:
+        planets = Planet.query.all()
+    
     planets_response = []
-    planets = Planet.query.all()
     for planet in planets:
         planets_response.append(
             {
@@ -50,7 +55,7 @@ def get_all_planets():
             }
         )
     
-    return jsonify(planets_response)
+    return jsonify(planets_response), 200
 
 
 @planets_bp.route("/<planet_id>", methods=["GET"])
