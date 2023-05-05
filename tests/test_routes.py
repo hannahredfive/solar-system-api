@@ -1,3 +1,5 @@
+import pytest
+
 # get all planets and return no records
 def test_get_all_planets_with_no_records(client):
     # ARRANGE is inside Conftest
@@ -107,3 +109,36 @@ def test_create_one_planet(client):
     assert response.status_code == 201
     assert response_body == "Planet Mercury successfully created"
 
+def test_create_one_planet_no_name(client):
+    # Arrange
+    test_data = {"description": "The Best!"}
+
+    # Act & Assert
+    with pytest.raises(KeyError, match='name'):
+        response = client.post("/planets", json=test_data)
+
+def test_create_one_planet_no_description(client):
+    # Arrange
+    test_data = {"name": "New planet"}
+
+    # Act & Assert
+    with pytest.raises(KeyError, match = 'description'):
+        response = client.post("/planets", json=test_data)
+
+def test_create_one_planet_with_extra_keys(client, two_saved_planets):
+    # Arrange
+    test_data = {
+        "extra": "some stuff",
+        "name": "New planet",
+        "description": "The Best!",
+        "moon_count": 234,
+        "another": "last value"
+    }
+
+    # Act
+    response = client.post("/planets", json=test_data)
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 201
+    assert response_body == "Planet New planet successfully created"
