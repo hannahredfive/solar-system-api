@@ -82,7 +82,7 @@ def test_get_one_planet_id_not_found(client, two_saved_planets):
 
     # Assert
     assert response.status_code == 404
-    assert response_body == {"message":"planet 3 not found"}
+    assert response_body == {"message":"Planet 3 not found"}
 
 def test_get_one_planet_id_invalid(client, two_saved_planets):
     # Act
@@ -91,7 +91,7 @@ def test_get_one_planet_id_invalid(client, two_saved_planets):
 
     # Assert
     assert response.status_code == 400
-    assert response_body == {"message":"planet cat invalid"}
+    assert response_body == {"message":"Planet cat invalid"}
 
 # create one planet, returns success msg
 def test_create_one_planet(client):
