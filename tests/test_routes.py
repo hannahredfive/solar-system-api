@@ -73,6 +73,24 @@ def test_get_one_planet(client, two_saved_planets):
         "name": "Mercury"
     }
 
+def test_get_one_planet_id_not_found(client, two_saved_planets):
+    # Act
+    response = client.get("/planets/3")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 404
+    assert response_body == {"message":"planet 3 not found"}
+
+def test_get_one_planet_id_invalid(client, two_saved_planets):
+    # Act
+    response = client.get("/planets/cat")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert response_body == {"message":"planet cat invalid"}
+
 # create one planet, returns success msg
 def test_create_one_planet(client):
     # Act

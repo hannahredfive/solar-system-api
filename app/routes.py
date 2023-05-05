@@ -15,7 +15,7 @@ def validate_planet(planet_id):
     planet = Planet.query.get(planet_id)
 
     if not planet:
-        abort(make_response({"message":f"book {planet_id} not found"}, 404))
+        abort(make_response({"message":f"planet {planet_id} not found"}, 404))
 
     return planet
 
