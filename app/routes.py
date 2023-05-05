@@ -67,7 +67,7 @@ def update_one_planet(planet_id):
 
     db.session.commit()
 
-    return make_response(f"Planet #{planet.id} successfully updated", 200)
+    return make_response(jsonify(f"Planet #{planet.id} successfully updated"), 200)
 
 
 @planets_bp.route("/<planet_id>", methods=["DELETE"])
@@ -77,4 +77,4 @@ def delete_one_planet(planet_id):
     db.session.delete(planet)
     db.session.commit()
 
-    return make_response(f"Planet #{planet.id} successfully deleted", 200)
+    return make_response(jsonify(f"Planet #{planet.id} successfully deleted"), 200)
