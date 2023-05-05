@@ -1,3 +1,6 @@
+from werkzeug.exceptions import HTTPException
+from app.routes import get_validated_model
+from app.models.planet import Planet
 import pytest
 
 # get all planets and return no records
@@ -142,3 +145,122 @@ def test_create_one_planet_with_extra_keys(client, two_saved_planets):
     # Assert
     assert response.status_code == 201
     assert response_body == "Planet New planet successfully created"
+
+#################################
+
+def test_update_planet(client, two_saved_planets):
+    # Arrange
+    test_data = {
+        "name": "New Planet",
+        "description": "The Best!",
+        "moon_count": 123
+    }
+
+    # Act
+    response = client.put("/planets/1", json=test_data)
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 200
+    assert response_body == "Planet #1 successfully updated"
+
+def test_update_planet_with_extra_keys(client, two_saved_planets):
+    # Arrange
+    test_data = {
+        "extra": "some stuff",
+        "name": "New Planet",
+        "description": "The Best!",
+        "moon_count": 123,
+        "another": "last value"
+    }
+
+    # Act
+    response = client.put("/planets/1", json=test_data)
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 200
+    assert response_body == "Planet #1 successfully updated"
+
+def test_update_planet_missing_record(client, two_saved_planets):
+    # Arrange
+    test_data = {
+        "name": "New Planet",
+        "description": "The Best!",
+        "moon_count": 123
+    }
+
+    # Act
+    response = client.put("/planets/3", json=test_data)
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 404
+    assert response_body == {"message": "Planet 3 not found"}
+
+def test_update_planet_invalid_id(client, two_saved_planets):
+    # Arrange
+    test_data = {
+        "name": "New Planet",
+        "description": "The Best!",
+        "moon_count": 123
+    }
+
+    # Act
+    response = client.put("/planets/cat", json=test_data)
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert response_body == {"message": "Planet cat invalid"}
+
+def test_delete_planet(client, two_saved_planets):
+    # Act
+    response = client.delete("/planets/1")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 200
+    assert response_body == "Planet #1 successfully deleted"
+
+def test_delete_planet_missing_record(client, two_saved_planets):
+    # Act
+    response = client.delete("/planets/3")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 404
+    assert response_body == {"message": "Planet 3 not found"}
+
+def test_delete_planet_invalid_id(client, two_saved_planets):
+    # Act
+    response = client.delete("/planets/cat")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert response_body == {"message": "Planet cat invalid"}
+
+def test_get_validated_model(two_saved_planets):
+    # Act
+    result_planet = get_validated_model(Planet, 1)
+
+    # Assert
+    assert result_planet.id == 1
+    assert result_planet.name == "Mercury"
+    assert result_planet.description == "First planet from the sun"
+    assert result_planet.moon_count == 0
+
+def test_get_validated_model_missing_record(two_saved_planets):
+    # Act & Assert
+    # Calling `get_validated_model` without being invoked by a route will
+    # cause an `HTTPException` when an `abort` statement is reached 
+    with pytest.raises(HTTPException):
+        result_planet = get_validated_model(Planet, "3")
+    
+def test_get_validated_model_invalid_id(two_saved_planets):
+    # Act & Assert
+    # Calling `get_validated_model` without being invoked by a route will
+    # cause an `HTTPException` when an `abort` statement is reached 
+    with pytest.raises(HTTPException):
+        result_planet = get_validated_model(Planet, "cat")
